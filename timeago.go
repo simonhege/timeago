@@ -108,6 +108,10 @@ func (cfg Config) FormatDuration(duration time.Duration) string {
 
 	isPast := duration >= 0
 
+	if duration < 0 {
+		duration = -duration
+	}
+
 	s := cfg.getTimeText(duration)
 
 	if isPast {

@@ -52,7 +52,7 @@ var formatReferenceTests = []struct {
 	{tBase, tBase.Add(90 * time.Minute).Add(-1), NoMax(English), "about an hour ago"},
 	{tBase, tBase.Add(90 * time.Minute).Add(-1), WithMax(English, 90*time.Minute, ""), "about an hour ago"},
 	{tBase, tBase.Add(90 * time.Minute), WithMax(English, 90*time.Minute, "2006-01-02"), "2013-08-30"},
-	
+
 	//Future
 	{tBase.Add(24 * time.Hour), tBase, NoMax(English), "in one day"},
 }
