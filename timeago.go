@@ -103,12 +103,12 @@ func (cfg Config) FormatReference(t time.Time, reference time.Time) string {
 		return t.Format(cfg.DefaultLayout)
 	}
 
-	return cfg.FormatDuration(d)
+	return cfg.FormatRelativeDuration(d)
 }
 
-//FormatDuration is the same as Format, but for time.Duration.
+//FormatRelativeDuration is the same as Format, but for time.Duration.
 //Config.Max is not used in this function, as there is no other alternative.
-func (cfg Config) FormatDuration(d time.Duration) string {
+func (cfg Config) FormatRelativeDuration(d time.Duration) string {
 
 	isPast := d >= 0
 
