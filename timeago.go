@@ -15,70 +15,74 @@ import (
 	"time"
 )
 
+const (
+	Day   time.Duration = time.Hour * 24
+	Month time.Duration = Day * 30
+	Year  time.Duration = Day * 365
+)
+
+type FormatPeriod struct {
+	D    time.Duration
+	One  string
+	Many string
+}
+
 //Config allows the customization of timeago.
-//You may configure string items (cfguage, plurals, ...) and
+//You may configure string items (language, plurals, ...) and
 //maximum allowed duration value for fuzzy formatting.
 type Config struct {
-	PastPrefix    string
-	PastSuffix    string
-	FuturePrefix  string
-	FutureSuffix  string
-	Second        string
-	Seconds       string
-	Minute        string
-	Minutes       string
-	Hour          string
-	Hours         string
-	Day           string
-	Days          string
-	Month         string
-	Months        string
-	Year          string
-	Years         string
+	PastPrefix   string
+	PastSuffix   string
+	FuturePrefix string
+	FutureSuffix string
+
+	Periods []FormatPeriod
+
+	Zero          string
 	Max           time.Duration //Maximum duration for using the special formatting.
-	DefaultLayout string        //Layout to use if delta is greater than Max
+	DefaultLayout string        //Layout to use if delta is greater than the minimum of last period in Periods and Max
 }
 
 //Predefined english configuration
 var English = Config{
-	PastPrefix:    "",
-	PastSuffix:    " ago",
-	FuturePrefix:  "in ",
-	FutureSuffix:  "",
-	Second:        "about a second",
-	Seconds:       "less than a minute",
-	Minute:        "about a minute",
-	Minutes:       "%d minutes",
-	Hour:          "about an hour",
-	Hours:         "%d hours",
-	Day:           "one day",
-	Days:          "%d days",
-	Month:         "one month",
-	Months:        "%d months",
-	Year:          "one year",
-	Years:         "%d years",
+	PastPrefix:   "",
+	PastSuffix:   " ago",
+	FuturePrefix: "in ",
+	FutureSuffix: "",
+
+	Periods: []FormatPeriod{
+		FormatPeriod{time.Second, "about a second", "%d seconds"},
+		FormatPeriod{time.Minute, "about a minute", "%d minutes"},
+		FormatPeriod{time.Hour, "about an hour", "%d hours"},
+		FormatPeriod{Day, "one day", "%d days"},
+		FormatPeriod{Month, "one month", "%d months"},
+		FormatPeriod{Year, "one year", "%d years"},
+	},
+
+	Zero: "about a second",
+
 	Max:           73 * time.Hour,
 	DefaultLayout: "2006-01-02",
 }
 
 //Predefined french configuration
 var French = Config{
-	PastPrefix:    "il y a ",
-	PastSuffix:    "",
-	FuturePrefix:  "dans ",
-	FutureSuffix:  "",
-	Second:        "environ une seconde",
-	Seconds:       "moins d'une minute",
-	Minute:        "environ une minute",
-	Minutes:       "%d minutes",
-	Hour:          "environ une heure",
-	Hours:         "%d heures",
-	Day:           "un jour",
-	Days:          "%d jours",
-	Month:         "un mois",
-	Months:        "%d mois",
-	Year:          "un an",
-	Years:         "%d ans",
+	PastPrefix:   "il y a ",
+	PastSuffix:   "",
+	FuturePrefix: "dans ",
+	FutureSuffix: "",
+
+	Periods: []FormatPeriod{
+		FormatPeriod{time.Second, "environ une seconde", "moins d'une minute"},
+		FormatPeriod{time.Minute, "environ une minute", "%d minutes"},
+		FormatPeriod{time.Hour, "environ une heure", "%d heures"},
+		FormatPeriod{Day, "un jour", "%d jours"},
+		FormatPeriod{Month, "un mois", "%d mois"},
+		FormatPeriod{Year, "un an", "%d ans"},
+	},
+
+	Zero: "environ une seconde",
+
 	Max:           73 * time.Hour,
 	DefaultLayout: "02/01/2006",
 }
@@ -102,17 +106,17 @@ func (cfg Config) FormatReference(t time.Time, reference time.Time) string {
 	return cfg.FormatDuration(d)
 }
 
-//FormatReference is the same as Format, but for time.Duration.
+//FormatDuration is the same as Format, but for time.Duration.
 //Config.Max is not used in this function, as there is no other alternative.
-func (cfg Config) FormatDuration(duration time.Duration) string {
+func (cfg Config) FormatDuration(d time.Duration) string {
 
-	isPast := duration >= 0
+	isPast := d >= 0
 
-	if duration < 0 {
-		duration = -duration
+	if d < 0 {
+		d = -d
 	}
 
-	s := cfg.getTimeText(duration)
+	s, _ := cfg.getTimeText(d, true)
 
 	if isPast {
 		return strings.Join([]string{cfg.PastPrefix, s, cfg.PastSuffix}, "")
@@ -121,111 +125,65 @@ func (cfg Config) FormatDuration(duration time.Duration) string {
 	}
 }
 
+//Round the duration d in terms of step.
+func round(d time.Duration, step time.Duration, roundCloser bool) time.Duration {
+
+	if roundCloser {
+		return time.Duration(float64(d)/float64(step) + 0.5)
+	}
+
+	return time.Duration(float64(d) / float64(step))
+}
+
 //Count the number of parameters in a format string
 func nbParamInFormat(f string) int {
 	return strings.Count(f, "%") - 2*strings.Count(f, "%%")
 }
 
-//Round the duratiion d in termes of step.
-func round(d time.Duration, step time.Duration) int64 {
-	return int64(float64(d)/float64(step) + 0.5)
-}
-
-//Convert a duration to a text, based on the current cfguage
-func (cfg Config) getTimeText(d time.Duration) string {
-
-	//Less than 1.5 second
-	if d < 1500*time.Millisecond {
-		return cfg.Second
+//Convert a duration to a text, based on the current config
+func (cfg Config) getTimeText(d time.Duration, roundCloser bool) (string, time.Duration) {
+	if len(cfg.Periods) == 0 || d < cfg.Periods[0].D {
+		return cfg.Zero, 0
 	}
 
-	//Less than 1 minute
-	if d < 60*time.Second {
+	for i, p := range cfg.Periods {
 
-		switch nbParamInFormat(cfg.Seconds) {
-		case 1:
-			return fmt.Sprintf(cfg.Seconds, round(d, time.Second))
-		}
-		return cfg.Seconds
-	}
-
-	//Less than 1.5 minute
-	if d < 90*time.Second {
-		return cfg.Minute
-	}
-
-	//Less than 1 hour
-	if d < 59*time.Minute+30*time.Second {
-
-		switch nbParamInFormat(cfg.Minutes) {
-		case 1:
-			return fmt.Sprintf(cfg.Minutes, round(d, time.Minute))
-		}
-		return cfg.Minutes
-	}
-
-	//Less than 1.5 hour
-	if d < 90*time.Minute {
-		return cfg.Hour
-	}
-
-	//Less than 1 day
-	if d < 23*time.Hour+30*time.Minute {
-
-		switch nbParamInFormat(cfg.Hours) {
-		case 1:
-			return fmt.Sprintf(cfg.Hours, round(d, time.Hour))
-		}
-		return cfg.Hours
-	}
-
-	//Less than 1.5 day
-	if d < 36*time.Hour {
-		return cfg.Day
-	}
-
-	//Less than 30 days
-	if d < 30*24*time.Hour {
-
-		switch nbParamInFormat(cfg.Days) {
-		case 1:
-			return fmt.Sprintf(cfg.Days, round(d, time.Hour*24))
-		}
-		return cfg.Days
-	}
-
-	//Less than 1.5 month
-	if d < 45*24*time.Hour {
-		return cfg.Month
-	}
-
-	//Less than 1 year
-	if d < 365*24*time.Hour {
-
-		switch nbParamInFormat(cfg.Months) {
-		case 1:
-			return fmt.Sprintf(cfg.Months, round(d, time.Hour*30*24))
+		next := p.D
+		if i+1 < len(cfg.Periods) {
+			next = cfg.Periods[i+1].D
 		}
 
-		return cfg.Months
+		if i+1 == len(cfg.Periods) || d < next {
+
+			r := round(d, p.D, roundCloser)
+
+			if next != p.D && r == round(next, p.D, roundCloser) {
+				continue
+			}
+
+			if r == 0 {
+				return "", d
+			}
+
+			layout := p.Many
+			if r == 1 {
+				layout = p.One
+			}
+
+			if nbParamInFormat(layout) == 0 {
+				return layout, d - r*p.D
+			}
+
+			return fmt.Sprintf(layout, r), d - r*p.D
+		}
 	}
 
-	//Less than 1.5 year
-	if d < 548*24*time.Hour { //548 days = 1.5 years
-		return cfg.Year
-	}
-
-	switch nbParamInFormat(cfg.Years) {
-	case 1:
-		return fmt.Sprintf(cfg.Years, round(d, time.Hour*24*365))
-	}
-	return cfg.Years
-
+	return d.String(), 0
 }
 
 //NoMax creates an new config without a maximum
 func NoMax(cfg Config) Config {
-	return WithMax(cfg, 9223372036854775807, "")
+	return WithMax(cfg, 9223372036854775807, time.RFC3339)
 }
 
 //WithMax creates an new config with special formatting limited to durations less than max.
