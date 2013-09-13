@@ -55,7 +55,6 @@ var formatReferenceTests = []struct {
 
 	//Future
 	{tBase.Add(24 * time.Hour), tBase, NoMax(English), "in one day"},
-
 }
 
 //Test the FormatReference method
