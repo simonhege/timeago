@@ -22,6 +22,7 @@ var formatReferenceTests = []struct {
 	//Lang
 	{tBase, tBase, NoMax(English), "about a second ago"},
 	{tBase, tBase, NoMax(French), "il y a environ une seconde"},
+  {tBase, tBase, NoMax(Chinese), "1 秒前"},
 
 	//Thresholds
 	{tBase, tBase.Add(1*time.Second + 500000000).Add(-1), NoMax(English), "about a second ago"},
