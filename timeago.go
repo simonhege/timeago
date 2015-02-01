@@ -65,6 +65,27 @@ var English = Config{
 	DefaultLayout: "2006-01-02",
 }
 
+var Chinese = Config{
+	PastPrefix:   "",
+	PastSuffix:   "前",
+	FuturePrefix: "于 ",
+	FutureSuffix: "",
+
+	Periods: []FormatPeriod{
+		FormatPeriod{time.Second, "1 秒", "%d 秒"},
+		FormatPeriod{time.Minute, "1 分钟", "%d 分钟"},
+		FormatPeriod{time.Hour, "1 小时", "%d 小时"},
+		FormatPeriod{Day, "1 天", "%d 天"},
+		FormatPeriod{Month, "1 月", "%d 月"},
+		FormatPeriod{Year, "1 年", "%d 年"},
+	},
+
+	Zero: "1 秒",
+
+	Max:           73 * time.Hour,
+	DefaultLayout: "2006-01-02",
+}
+
 //Predefined french configuration
 var French = Config{
 	PastPrefix:   "il y a ",
