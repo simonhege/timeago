@@ -54,7 +54,7 @@ type Config struct {
 var (
 	// https://github.com/goinggo/beego-mgo/tree/master/go-i18n/i18n
 	// http://www.unicode.org/cldr/charts/latest/supplemental/language_plural_rules.html#ru
-	RussianLanguage = &language.Language{
+	pluralRussian = &language.Language{
 		ID:               "ru",
 		PluralCategories: newSet(plural.One, plural.Few, plural.Many, plural.Other),
 		PluralFunc: func(ops *plural.Operands) plural.Category {
@@ -274,7 +274,7 @@ var Russian = Config{
 
 // Register locales
 func init() {
-	language.Register(RussianLanguage)
+	language.Register(pluralRussian)
 }
 
 // newSet plural categories
