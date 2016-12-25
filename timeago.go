@@ -11,8 +11,13 @@ package timeago
 
 import (
 	"fmt"
+	"regexp"
+	"strconv"
 	"strings"
 	"time"
+
+	"github.com/goinggo/beego-mgo/go-i18n/i18n/language"
+	"github.com/goinggo/beego-mgo/go-i18n/i18n/plural"
 )
 
 const (
@@ -22,15 +27,18 @@ const (
 )
 
 type FormatPeriod struct {
-	D    time.Duration
-	One  string
-	Many string
+	D     time.Duration
+	One   string
+	Few   string
+	Many  string
+	Other string
 }
 
 // Config allows the customization of timeago.
 // You may configure string items (language, plurals, ...) and
 // maximum allowed duration value for fuzzy formatting.
 type Config struct {
+	LocaleID     string
 	PastPrefix   string
 	PastSuffix   string
 	FuturePrefix string
@@ -39,24 +47,72 @@ type Config struct {
 	Periods []FormatPeriod
 
 	Zero          string
-	Max           time.Duration //Maximum duration for using the special formatting.
-	DefaultLayout string        //Layout to use if delta is greater than the minimum of last period in Periods and Max
+	Max           time.Duration // Maximum duration for using the special formatting.
+	DefaultLayout string        // Layout to use if delta is greater than the minimum of last period in Periods and Max
 }
 
-//Predefined english configuration
+var (
+	// https://github.com/goinggo/beego-mgo/tree/master/go-i18n/i18n
+	// http://www.unicode.org/cldr/charts/latest/supplemental/language_plural_rules.html#ru
+	RussianLanguage = &language.Language{
+		ID:               "ru",
+		PluralCategories: newSet(plural.One, plural.Few, plural.Many, plural.Other),
+		PluralFunc: func(ops *plural.Operands) plural.Category {
+			mod10 := ops.I % 10
+			mod100 := ops.I % 100
+			if ops.V == 0 && mod10 == 1 && mod100 != 11 {
+				return plural.One
+			}
+			if ops.V == 0 && (mod10 >= 2 && mod10 <= 4) && (mod100 < 12 || mod100 > 14) {
+				return plural.Few
+			}
+			if ops.V == 0 && (mod10 == 0 || (mod10 >= 5 && mod10 <= 9) || (mod100 >= 11 && mod100 <= 14)) {
+				return plural.Many
+			}
+			return plural.Other
+		},
+	}
+)
+
+// Predefined english configuration
 var English = Config{
+	LocaleID:     "en",
 	PastPrefix:   "",
 	PastSuffix:   " ago",
 	FuturePrefix: "in ",
 	FutureSuffix: "",
 
 	Periods: []FormatPeriod{
-		FormatPeriod{time.Second, "about a second", "%d seconds"},
-		FormatPeriod{time.Minute, "about a minute", "%d minutes"},
-		FormatPeriod{time.Hour, "about an hour", "%d hours"},
-		FormatPeriod{Day, "one day", "%d days"},
-		FormatPeriod{Month, "one month", "%d months"},
-		FormatPeriod{Year, "one year", "%d years"},
+		FormatPeriod{
+			D:     time.Second,
+			One:   "about a second",
+			Other: "%d seconds",
+		},
+		FormatPeriod{
+			D:     time.Minute,
+			One:   "about a minute",
+			Other: "%d minutes",
+		},
+		FormatPeriod{
+			D:     time.Hour,
+			One:   "about an hour",
+			Other: "%d hours",
+		},
+		FormatPeriod{
+			D:     Day,
+			One:   "one day",
+			Other: "%d days",
+		},
+		FormatPeriod{
+			D:     Month,
+			One:   "one month",
+			Other: "%d months",
+		},
+		FormatPeriod{
+			D:     Year,
+			One:   "one year",
+			Other: "%d years",
+		},
 	},
 
 	Zero: "about a second",
@@ -66,18 +122,43 @@ var English = Config{
 }
 
 var Chinese = Config{
+	LocaleID:     "zh",
 	PastPrefix:   "",
 	PastSuffix:   "前",
 	FuturePrefix: "于 ",
 	FutureSuffix: "",
 
 	Periods: []FormatPeriod{
-		FormatPeriod{time.Second, "1 秒", "%d 秒"},
-		FormatPeriod{time.Minute, "1 分钟", "%d 分钟"},
-		FormatPeriod{time.Hour, "1 小时", "%d 小时"},
-		FormatPeriod{Day, "1 天", "%d 天"},
-		FormatPeriod{Month, "1 月", "%d 月"},
-		FormatPeriod{Year, "1 年", "%d 年"},
+		FormatPeriod{
+			D:     time.Second,
+			One:   "1 秒",
+			Other: "%d 秒",
+		},
+		FormatPeriod{
+			D:     time.Minute,
+			One:   "1 分钟",
+			Other: "%d 分钟",
+		},
+		FormatPeriod{
+			D:     time.Hour,
+			One:   "1 小时",
+			Other: "%d 小时",
+		},
+		FormatPeriod{
+			D:     Day,
+			One:   "1 天",
+			Other: "%d 天",
+		},
+		FormatPeriod{
+			D:     Month,
+			One:   "1 月",
+			Other: "%d 月",
+		},
+		FormatPeriod{
+			D:     Year,
+			One:   "1 年",
+			Other: "%d 年",
+		},
 	},
 
 	Zero: "1 秒",
@@ -88,18 +169,43 @@ var Chinese = Config{
 
 // Predefined french configuration
 var French = Config{
+	LocaleID:     "fr",
 	PastPrefix:   "il y a ",
 	PastSuffix:   "",
 	FuturePrefix: "dans ",
 	FutureSuffix: "",
 
 	Periods: []FormatPeriod{
-		FormatPeriod{time.Second, "environ une seconde", "moins d'une minute"},
-		FormatPeriod{time.Minute, "environ une minute", "%d minutes"},
-		FormatPeriod{time.Hour, "environ une heure", "%d heures"},
-		FormatPeriod{Day, "un jour", "%d jours"},
-		FormatPeriod{Month, "un mois", "%d mois"},
-		FormatPeriod{Year, "un an", "%d ans"},
+		FormatPeriod{
+			D:     time.Second,
+			One:   "environ une seconde",
+			Other: "moins d'une minute",
+		},
+		FormatPeriod{
+			D:     time.Minute,
+			One:   "environ une minute",
+			Other: "%d minutes",
+		},
+		FormatPeriod{
+			D:     time.Hour,
+			One:   "environ une heure",
+			Other: "%d heures",
+		},
+		FormatPeriod{
+			D:     Day,
+			One:   "un jour",
+			Other: "%d jours",
+		},
+		FormatPeriod{
+			D:     Month,
+			One:   "un mois",
+			Other: "%d mois",
+		},
+		FormatPeriod{
+			D:     Year,
+			One:   "un an",
+			Other: "%d ans",
+		},
 	},
 
 	Zero: "environ une seconde",
@@ -109,24 +215,76 @@ var French = Config{
 }
 
 var Russian = Config{
+	LocaleID:     "ru",
 	PastPrefix:   "",
 	PastSuffix:   " назад",
 	FuturePrefix: "через ",
 	FutureSuffix: "",
 
 	Periods: []FormatPeriod{
-		FormatPeriod{time.Second, "секунду", "%d секунд"},
-		FormatPeriod{time.Minute, "около минуты", "%d минут"},
-		FormatPeriod{time.Hour, "около часа", "%d часа"},
-		FormatPeriod{Day, "день", "%d дней"},
-		FormatPeriod{Month, "месяц", "%d месяцев"},
-		FormatPeriod{Year, "год", "%d лет"},
+		FormatPeriod{
+			D:     time.Second,
+			One:   "секунду",
+			Few:   "%d секунды",
+			Many:  "%d секунд",
+			Other: "%d секунды",
+		},
+		FormatPeriod{
+			D:     time.Minute,
+			One:   "около минуты",
+			Few:   "%d минуты",
+			Many:  "%d минут",
+			Other: "%d минуты",
+		},
+		FormatPeriod{
+			D:     time.Hour,
+			One:   "около часа",
+			Few:   "%d часа",
+			Many:  "%d часов",
+			Other: "%d часа",
+		},
+		FormatPeriod{
+			D:     Day,
+			One:   "день",
+			Few:   "%d дня",
+			Many:  "%d дней",
+			Other: "%d дня",
+		},
+		FormatPeriod{
+			D:     Month,
+			One:   "месяц",
+			Few:   "%d месяца",
+			Many:  "%d месяцев",
+			Other: "%d месяца",
+		},
+		FormatPeriod{
+			D:     Year,
+			One:   "год",
+			Few:   "%d года",
+			Many:  "%d лет",
+			Other: "%d года",
+		},
 	},
 
 	Zero: "около секунды",
 
 	Max:           73 * time.Hour,
 	DefaultLayout: "2006-01-02",
+}
+
+// Register locales
+func init() {
+	language.Register(RussianLanguage)
+}
+
+// newSet plural categories
+// https://github.com/goinggo/beego-mgo/blob/master/go-i18n/i18n/language/language.go#L240
+func newSet(pluralCategories ...plural.Category) map[plural.Category]struct{} {
+	set := make(map[plural.Category]struct{}, len(pluralCategories))
+	for _, pc := range pluralCategories {
+		set[pc] = struct{}{}
+	}
+	return set
 }
 
 // Format returns a textual representation of the time value formatted according to the layout
@@ -138,7 +296,6 @@ func (cfg Config) Format(t time.Time) string {
 
 // FormatReference is the same as Format, but the reference has to be defined by the caller
 func (cfg Config) FormatReference(t time.Time, reference time.Time) string {
-
 	d := reference.Sub(t)
 
 	if (d >= 0 && d >= cfg.Max) || (d < 0 && -d >= cfg.Max) {
@@ -151,7 +308,6 @@ func (cfg Config) FormatReference(t time.Time, reference time.Time) string {
 // FormatRelativeDuration is the same as Format, but for time.Duration.
 // Config.Max is not used in this function, as there is no other alternative.
 func (cfg Config) FormatRelativeDuration(d time.Duration) string {
-
 	isPast := d >= 0
 
 	if d < 0 {
@@ -162,18 +318,15 @@ func (cfg Config) FormatRelativeDuration(d time.Duration) string {
 
 	if isPast {
 		return strings.Join([]string{cfg.PastPrefix, s, cfg.PastSuffix}, "")
-	} else {
-		return strings.Join([]string{cfg.FuturePrefix, s, cfg.FutureSuffix}, "")
 	}
+	return strings.Join([]string{cfg.FuturePrefix, s, cfg.FutureSuffix}, "")
 }
 
 // Round the duration d in terms of step.
 func round(d time.Duration, step time.Duration, roundCloser bool) time.Duration {
-
 	if roundCloser {
 		return time.Duration(float64(d)/float64(step) + 0.5)
 	}
-
 	return time.Duration(float64(d) / float64(step))
 }
 
@@ -182,14 +335,23 @@ func nbParamInFormat(f string) int {
 	return strings.Count(f, "%") - 2*strings.Count(f, "%%")
 }
 
+// durationNumber Get number from time.Duration
+func durationNumber(d time.Duration) (int, error) {
+	re := regexp.MustCompile("[^0-9]")
+	return strconv.Atoi(re.ReplaceAllString(d.String(), ""))
+}
+
 // Convert a duration to a text, based on the current config
 func (cfg Config) getTimeText(d time.Duration, roundCloser bool) (string, time.Duration) {
+	var layout string
+
 	if len(cfg.Periods) == 0 || d < cfg.Periods[0].D {
 		return cfg.Zero, 0
 	}
 
-	for i, p := range cfg.Periods {
+	lang := language.LanguageWithID(cfg.LocaleID)
 
+	for i, p := range cfg.Periods {
 		next := p.D
 		if i+1 < len(cfg.Periods) {
 			next = cfg.Periods[i+1].D
@@ -207,9 +369,18 @@ func (cfg Config) getTimeText(d time.Duration, roundCloser bool) (string, time.D
 				return "", d
 			}
 
-			layout := p.Many
-			if r == 1 {
+			pluralNumber, _ := durationNumber(r)
+			pluralCategory, _ := lang.PluralCategory(pluralNumber)
+			switch pluralCategory {
+			case plural.One:
 				layout = p.One
+			case plural.Few:
+				layout = p.Few
+			case plural.Many:
+				layout = p.Many
+			case plural.Invalid:
+			default:
+				layout = p.Other
 			}
 
 			if nbParamInFormat(layout) == 0 {
