@@ -9,56 +9,68 @@ import (
 	"time"
 )
 
-//Base time for testing
+// Base time for testing
 var tBase = time.Date(2013, 8, 30, 12, 0, 0, 0, time.UTC)
 
-//Test data for TestFormatReference
+// Test data for TestFormatReference
 var formatReferenceTests = []struct {
 	t        time.Time // input time
 	ref      time.Time // input reference
-	cfg      Config    //input cfguage
+	cfg      Config    // input cfguage
 	expected string    // expected result
 }{
-	//Lang
+	// Lang
 	{tBase, tBase, NoMax(English), "about a second ago"},
 	{tBase, tBase, NoMax(French), "il y a environ une seconde"},
-  {tBase, tBase, NoMax(Chinese), "1 秒前"},
+	{tBase, tBase, NoMax(Chinese), "1 秒前"},
 
-	//Thresholds
+	{tBase, tBase, NoMax(Portuguese), "há menos de um segundo"},
+
+	// Thresholds
 	{tBase, tBase.Add(1*time.Second + 500000000).Add(-1), NoMax(English), "about a second ago"},
 	{tBase, tBase.Add(1*time.Second + 500000000), NoMax(English), "2 seconds ago"},
-	{tBase, tBase.Add(1 * time.Minute).Add(-500000001), NoMax(English), "59 seconds ago"},
 	{tBase, tBase.Add(1 * time.Minute), NoMax(English), "about a minute ago"},
 	{tBase, tBase.Add(1*time.Minute + 30*time.Second).Add(-1), NoMax(English), "about a minute ago"},
 	{tBase, tBase.Add(1*time.Minute + 30*time.Second), NoMax(English), "2 minutes ago"},
-	{tBase, tBase.Add(59*time.Minute + 30*time.Second).Add(-1), NoMax(English), "59 minutes ago"},
 	{tBase, tBase.Add(59*time.Minute + 30*time.Second), NoMax(English), "about an hour ago"},
-	{tBase, tBase.Add(90 * time.Minute).Add(-1), NoMax(English), "about an hour ago"},
 	{tBase, tBase.Add(90 * time.Minute), NoMax(English), "2 hours ago"},
 	{tBase, tBase.Add(23*time.Hour + 30*time.Minute).Add(-1), NoMax(English), "23 hours ago"},
 	{tBase, tBase.Add(23*time.Hour + 30*time.Minute), NoMax(English), "one day ago"},
-	{tBase, tBase.Add(36 * time.Hour).Add(-1), NoMax(English), "one day ago"},
 	{tBase, tBase.Add(36 * time.Hour), NoMax(English), "2 days ago"},
-	{tBase, tBase.Add(30 * 24 * time.Hour).Add(-12*time.Hour - 1), NoMax(English), "29 days ago"},
 	{tBase, tBase.Add(30 * 24 * time.Hour), NoMax(English), "one month ago"},
-	{tBase, tBase.Add(45 * 24 * time.Hour).Add(-1), NoMax(English), "one month ago"},
-	{tBase, tBase.Add(45 * 24 * time.Hour), NoMax(English), "2 months ago"},
 	{tBase, tBase.Add(Year).Add(-30 * Day), NoMax(English), "11 months ago"},
 	{tBase, tBase.Add(Year), NoMax(English), "one year ago"},
 	{tBase, tBase.Add(547 * Day), NoMax(English), "one year ago"},
 	{tBase, tBase.Add(548 * Day), NoMax(English), "2 years ago"},
 	{tBase, tBase.Add(10 * Year), NoMax(English), "10 years ago"},
 
-	//Max
+	{tBase, tBase.Add(90 * time.Minute).Add(-1), NoMax(Portuguese), "há uma hora"},
+	{tBase, tBase.Add(45 * 24 * time.Hour).Add(-1), NoMax(Portuguese), "há um mês"},
+	{tBase, tBase.Add(36 * time.Hour).Add(-1), NoMax(Portuguese), "há um dia"},
+	{tBase, tBase.Add(1 * time.Minute).Add(-500000001), NoMax(Portuguese), "há 59 segundos"},
+	{tBase, tBase.Add(59*time.Minute + 30*time.Second).Add(-1), NoMax(Portuguese), "há 59 minutos"},
+	{tBase, tBase.Add(30 * 24 * time.Hour).Add(-12*time.Hour - 1), NoMax(Portuguese), "há 29 dias"},
+	{tBase, tBase.Add(45 * 24 * time.Hour), NoMax(Portuguese), "há 2 meses"},
+	{tBase, tBase.Add(10 * Year), NoMax(Portuguese), "há 10 anos"},
+
+	// Max
 	{tBase, tBase.Add(90 * time.Minute).Add(-1), NoMax(English), "about an hour ago"},
 	{tBase, tBase.Add(90 * time.Minute).Add(-1), WithMax(English, 90*time.Minute, ""), "about an hour ago"},
 	{tBase, tBase.Add(90 * time.Minute), WithMax(English, 90*time.Minute, "2006-01-02"), "2013-08-30"},
 
-	//Future
+	{tBase, tBase.Add(90 * time.Minute), WithMax(Portuguese, 90*time.Minute, "01-02-2006"), "08-30-2013"},
+
+	// Future
 	{tBase.Add(24 * time.Hour), tBase, NoMax(English), "in one day"},
+
+	{tBase.Add(2 * Month), tBase, NoMax(Portuguese), "daqui a 2 meses"},
+	{tBase.Add(24 * time.Hour), tBase, NoMax(Portuguese), "daqui a um dia"},
+	{tBase.Add(5 * time.Minute), tBase, NoMax(Portuguese), "daqui a 5 minutos"},
+	{tBase.Add(1 * time.Minute), tBase, NoMax(Portuguese), "daqui a um minuto"},
+	{tBase.Add(100 * time.Millisecond), tBase, NoMax(Portuguese), "daqui a menos de um segundo"},
 }
 
-//Test the FormatReference method
+// Test the FormatReference method
 func TestFormatReference(t *testing.T) {
 	for i, tt := range formatReferenceTests {
 		actual := tt.cfg.FormatReference(tt.t, tt.ref)

@@ -65,6 +65,27 @@ var English = Config{
 	DefaultLayout: "2006-01-02",
 }
 
+var Portuguese = Config{
+	PastPrefix:   "há ",
+	PastSuffix:   "",
+	FuturePrefix: "daqui a ",
+	FutureSuffix: "",
+
+	Periods: []FormatPeriod{
+		FormatPeriod{time.Second, "um segundo", "%d segundos"},
+		FormatPeriod{time.Minute, "um minuto", "%d minutos"},
+		FormatPeriod{time.Hour, "uma hora", "%d horas"},
+		FormatPeriod{Day, "um dia", "%d dias"},
+		FormatPeriod{Month, "um mês", "%d meses"},
+		FormatPeriod{Year, "um ano", "%d anos"},
+	},
+
+	Zero: "menos de um segundo",
+
+	Max:           73 * time.Hour,
+	DefaultLayout: "02-01-2006",
+}
+
 var Chinese = Config{
 	PastPrefix:   "",
 	PastSuffix:   "前",
