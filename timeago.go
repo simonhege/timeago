@@ -38,9 +38,12 @@ type Config struct {
 
 	Periods []FormatPeriod
 
-	Zero          string
-	Max           time.Duration //Maximum duration for using the special formatting.
-	DefaultLayout string        //Layout to use if delta is greater than the minimum of last period in Periods and Max
+	Zero string
+	Max  time.Duration //Maximum duration for using the special formatting.
+	//DefaultLayout is used if delta is greater than the minimum of last period
+	//in Periods and Max. It is the desired representation of the date 2nd of
+	// January 2006.
+	DefaultLayout string
 }
 
 //Predefined english configuration
@@ -127,6 +130,28 @@ var French = Config{
 
 	Max:           73 * time.Hour,
 	DefaultLayout: "02/01/2006",
+}
+
+//Predefined german configuration
+var German = Config{
+	PastPrefix:   "vor ",
+	PastSuffix:   "",
+	FuturePrefix: "in ",
+	FutureSuffix: "",
+
+	Periods: []FormatPeriod{
+		FormatPeriod{time.Second, "einer Sekunde", "%d Sekunden"},
+		FormatPeriod{time.Minute, "einer Minute", "%d Minuten"},
+		FormatPeriod{time.Hour, "einer Stunde", "%d Stunden"},
+		FormatPeriod{Day, "einem Tag", "%d Tagen"},
+		FormatPeriod{Month, "einem Monat", "%d Monaten"},
+		FormatPeriod{Year, "einem Jahr", "%d Jahren"},
+	},
+
+	Zero: "einer Sekunde",
+
+	Max:           73 * time.Hour,
+	DefaultLayout: "02.01.2006",
 }
 
 //Format returns a textual representation of the time value formatted according to the layout
