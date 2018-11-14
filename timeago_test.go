@@ -25,6 +25,7 @@ var formatReferenceTests = []struct {
 	{tBase, tBase, NoMax(Chinese), "1 秒前"},
 	{tBase, tBase, NoMax(Portuguese), "há menos de um segundo"},
 	{tBase, tBase, NoMax(German), "vor einer Sekunde"},
+	{tBase, tBase, NoMax(Turkish), "yaklaşık bir saniye önce"},
 
 	// Thresholds
 	{tBase, tBase.Add(1*time.Second + 500000000).Add(-1), NoMax(English), "about a second ago"},
@@ -70,6 +71,24 @@ var formatReferenceTests = []struct {
 	{tBase, tBase.Add(548 * Day), NoMax(German), "vor 2 Jahren"},
 	{tBase, tBase.Add(10 * Year), NoMax(German), "vor 10 Jahren"},
 
+	// Turkish Thresholds
+	{tBase, tBase.Add(1*time.Second + 500000000).Add(-1), NoMax(Turkish), "yaklaşık bir saniye önce"},
+	{tBase, tBase.Add(1*time.Second + 500000000), NoMax(Turkish), "2 saniye önce"},
+	{tBase, tBase.Add(1 * time.Minute), NoMax(Turkish), "yaklaşık bir dakika önce"},
+	{tBase, tBase.Add(1*time.Minute + 30*time.Second).Add(-1), NoMax(Turkish), "yaklaşık bir dakika önce"},
+	{tBase, tBase.Add(1*time.Minute + 30*time.Second), NoMax(Turkish), "2 dakika önce"},
+	{tBase, tBase.Add(59*time.Minute + 30*time.Second), NoMax(Turkish), "yaklaşık bir saat önce"},
+	{tBase, tBase.Add(90 * time.Minute), NoMax(Turkish), "2 saat önce"},
+	{tBase, tBase.Add(23*time.Hour + 30*time.Minute).Add(-1), NoMax(Turkish), "23 saat önce"},
+	{tBase, tBase.Add(23*time.Hour + 30*time.Minute), NoMax(Turkish), "bir gün önce"},
+	{tBase, tBase.Add(36 * time.Hour), NoMax(Turkish), "2 gün önce"},
+	{tBase, tBase.Add(30 * 24 * time.Hour), NoMax(Turkish), "bir ay önce"},
+	{tBase, tBase.Add(Year).Add(-30 * Day), NoMax(Turkish), "11 ay önce"},
+	{tBase, tBase.Add(Year), NoMax(Turkish), "bir yıl önce"},
+	{tBase, tBase.Add(547 * Day), NoMax(Turkish), "bir yıl önce"},
+	{tBase, tBase.Add(548 * Day), NoMax(Turkish), "2 yıl önce"},
+	{tBase, tBase.Add(10 * Year), NoMax(Turkish), "10 yıl önce"},
+
 	// Max
 	{tBase, tBase.Add(90 * time.Minute).Add(-1), NoMax(English), "about an hour ago"},
 	{tBase, tBase.Add(90 * time.Minute).Add(-1), WithMax(English, 90*time.Minute, ""), "about an hour ago"},
@@ -81,8 +100,18 @@ var formatReferenceTests = []struct {
 	{tBase, tBase.Add(90 * time.Minute).Add(-1), WithMax(German, 90*time.Minute, ""), "vor einer Stunde"},
 	{tBase, tBase.Add(90 * time.Minute), WithMax(German, 90*time.Minute, German.DefaultLayout), "30.08.2013"},
 
+	// Turkish Max
+	{tBase, tBase.Add(90 * time.Minute).Add(-1), NoMax(Turkish), "yaklaşık bir saat önce"},
+	{tBase, tBase.Add(90 * time.Minute).Add(-1), WithMax(Turkish, 90*time.Minute, ""), "yaklaşık bir saat önce"},
+	{tBase, tBase.Add(90 * time.Minute), WithMax(Turkish, 90*time.Minute, "02/01/2006"), "30/08/2013"},
+
 	// Future
 	{tBase.Add(24 * time.Hour), tBase, NoMax(English), "in one day"},
+	{tBase.Add(24 * time.Hour), tBase, NoMax(Turkish), "bir gün içinde"},
+
+	{tBase.Add(2 * Month), tBase, NoMax(Turkish), "2 ay içinde"},
+	{tBase.Add(5 * time.Minute), tBase, NoMax(Turkish), "5 dakika içinde"},
+	{tBase.Add(100 * time.Millisecond), tBase, NoMax(Turkish), "yaklaşık bir saniye içinde"},
 
 	{tBase.Add(2 * Month), tBase, NoMax(Portuguese), "daqui a 2 meses"},
 	{tBase.Add(24 * time.Hour), tBase, NoMax(Portuguese), "daqui a um dia"},

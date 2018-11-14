@@ -154,6 +154,28 @@ var German = Config{
 	DefaultLayout: "02.01.2006",
 }
 
+//Predefined turkish configuration
+var Turkish = Config{
+	PastPrefix:   "",
+	PastSuffix:   " önce",
+	FuturePrefix: "",
+	FutureSuffix: " içinde",
+
+	Periods: []FormatPeriod{
+		FormatPeriod{time.Second, "yaklaşık bir saniye", "%d saniye"},
+		FormatPeriod{time.Minute, "yaklaşık bir dakika", "%d dakika"},
+		FormatPeriod{time.Hour, "yaklaşık bir saat", "%d saat"},
+		FormatPeriod{Day, "bir gün", "%d gün"},
+		FormatPeriod{Month, "bir ay", "%d ay"},
+		FormatPeriod{Year, "bir yıl", "%d yıl"},
+	},
+
+	Zero: "yaklaşık bir saniye",
+
+	Max:           73 * time.Hour,
+	DefaultLayout: "02/01/2006",
+}
+
 //Format returns a textual representation of the time value formatted according to the layout
 //defined in the Config. The time is compared to time.Now() and is then formatted as a fuzzy
 //timestamp (eg. "4 days ago")
