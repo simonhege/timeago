@@ -184,9 +184,9 @@ var Korean = Config{
 	FutureSuffix: " 후",
 
 	Periods: []FormatPeriod{
-		FormatPeriod{time.Second, "about a second", "%d초"},
-		FormatPeriod{time.Minute, "about a minute", "%d분"},
-		FormatPeriod{time.Hour, "about an hour", "%d시간"},
+		FormatPeriod{time.Second, "약 1초", "%d초"},
+		FormatPeriod{time.Minute, "약 1분", "%d분"},
+		FormatPeriod{time.Hour, "약 한시간", "%d시간"},
 		FormatPeriod{Day, "하루", "%d일"},
 		FormatPeriod{Month, "1개월", "%d개월"},
 		FormatPeriod{Year, "1년", "%d년"},
