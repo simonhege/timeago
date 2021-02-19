@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT-style
 // license that can be found in the LICENSE file.
 
-//timeago allows the formatting of time in terms of fuzzy timestamps.
+//Package timeago allows the formatting of time in terms of fuzzy timestamps.
 //For example:
 //	one minute ago
 //	3 years ago
@@ -54,12 +54,12 @@ var English = Config{
 	FutureSuffix: "",
 
 	Periods: []FormatPeriod{
-		FormatPeriod{time.Second, "about a second", "%d seconds"},
-		FormatPeriod{time.Minute, "about a minute", "%d minutes"},
-		FormatPeriod{time.Hour, "about an hour", "%d hours"},
-		FormatPeriod{Day, "one day", "%d days"},
-		FormatPeriod{Month, "one month", "%d months"},
-		FormatPeriod{Year, "one year", "%d years"},
+		{D: time.Second, One: "about a second", Many: "a second%d seconds"},
+		{D: time.Minute, One: "about a minute", Many: "%d minutes"},
+		{D: time.Hour, One: "about an hour", Many: "%d hours"},
+		{D: Day, One: "one day", Many: "%d days"},
+		{D: Month, One: "one month", Many: "%d months"},
+		{D: Year, One: "one year", Many: "%d years"},
 	},
 
 	Zero: "about a second",
@@ -75,12 +75,12 @@ var Portuguese = Config{
 	FutureSuffix: "",
 
 	Periods: []FormatPeriod{
-		FormatPeriod{time.Second, "um segundo", "%d segundos"},
-		FormatPeriod{time.Minute, "um minuto", "%d minutos"},
-		FormatPeriod{time.Hour, "uma hora", "%d horas"},
-		FormatPeriod{Day, "um dia", "%d dias"},
-		FormatPeriod{Month, "um mês", "%d meses"},
-		FormatPeriod{Year, "um ano", "%d anos"},
+		{D: time.Second, One: "um segundo", Many: "%d segundos"},
+		{D: time.Minute, One: "um minuto", Many: "%d minutos"},
+		{D: time.Hour, One: "uma hora", Many: "%d horas"},
+		{D: Day, One: "um dia", Many: "%d dias"},
+		{D: Month, One: "um mês", Many: "%d meses"},
+		{D: Year, One: "um ano", Many: "%d anos"},
 	},
 
 	Zero: "menos de um segundo",
@@ -96,12 +96,12 @@ var Chinese = Config{
 	FutureSuffix: "",
 
 	Periods: []FormatPeriod{
-		FormatPeriod{time.Second, "1 秒", "%d 秒"},
-		FormatPeriod{time.Minute, "1 分钟", "%d 分钟"},
-		FormatPeriod{time.Hour, "1 小时", "%d 小时"},
-		FormatPeriod{Day, "1 天", "%d 天"},
-		FormatPeriod{Month, "1 月", "%d 月"},
-		FormatPeriod{Year, "1 年", "%d 年"},
+		{D: time.Second, One: "1 秒", Many: "%d 秒"},
+		{D: time.Minute, One: "1 分钟", Many: "%d 分钟"},
+		{D: time.Hour, One: "1 小时", Many: "%d 小时"},
+		{D: Day, One: "1 天", Many: "%d 天"},
+		{D: Month, One: "1 月", Many: "%d 月"},
+		{D: Year, One: "1 年", Many: "%d 年"},
 	},
 
 	Zero: "1 秒",
@@ -118,12 +118,12 @@ var French = Config{
 	FutureSuffix: "",
 
 	Periods: []FormatPeriod{
-		FormatPeriod{time.Second, "environ une seconde", "moins d'une minute"},
-		FormatPeriod{time.Minute, "environ une minute", "%d minutes"},
-		FormatPeriod{time.Hour, "environ une heure", "%d heures"},
-		FormatPeriod{Day, "un jour", "%d jours"},
-		FormatPeriod{Month, "un mois", "%d mois"},
-		FormatPeriod{Year, "un an", "%d ans"},
+		{D: time.Second, One: "environ une seconde", Many: "moins d'une minute"},
+		{D: time.Minute, One: "environ une minute", Many: "%d minutes"},
+		{D: time.Hour, One: "environ une heure", Many: "%d heures"},
+		{D: Day, One: "un jour", Many: "%d jours"},
+		{D: Month, One: "un mois", Many: "%d mois"},
+		{D: Year, One: "un an", Many: "%d ans"},
 	},
 
 	Zero: "environ une seconde",
@@ -140,12 +140,12 @@ var German = Config{
 	FutureSuffix: "",
 
 	Periods: []FormatPeriod{
-		FormatPeriod{time.Second, "einer Sekunde", "%d Sekunden"},
-		FormatPeriod{time.Minute, "einer Minute", "%d Minuten"},
-		FormatPeriod{time.Hour, "einer Stunde", "%d Stunden"},
-		FormatPeriod{Day, "einem Tag", "%d Tagen"},
-		FormatPeriod{Month, "einem Monat", "%d Monaten"},
-		FormatPeriod{Year, "einem Jahr", "%d Jahren"},
+		{D: time.Second, One: "einer Sekunde", Many: "%d Sekunden"},
+		{D: time.Minute, One: "einer Minute", Many: "%d Minuten"},
+		{D: time.Hour, One: "einer Stunde", Many: "%d Stunden"},
+		{D: Day, One: "einem Tag", Many: "%d Tagen"},
+		{D: Month, One: "einem Monat", Many: "%d Monaten"},
+		{D: Year, One: "einem Jahr", Many: "%d Jahren"},
 	},
 
 	Zero: "einer Sekunde",
@@ -162,12 +162,12 @@ var Turkish = Config{
 	FutureSuffix: " içinde",
 
 	Periods: []FormatPeriod{
-		FormatPeriod{time.Second, "yaklaşık bir saniye", "%d saniye"},
-		FormatPeriod{time.Minute, "yaklaşık bir dakika", "%d dakika"},
-		FormatPeriod{time.Hour, "yaklaşık bir saat", "%d saat"},
-		FormatPeriod{Day, "bir gün", "%d gün"},
-		FormatPeriod{Month, "bir ay", "%d ay"},
-		FormatPeriod{Year, "bir yıl", "%d yıl"},
+		{D: time.Second, One: "yaklaşık bir saniye", Many: "%d saniye"},
+		{D: time.Minute, One: "yaklaşık bir dakika", Many: "%d dakika"},
+		{D: time.Hour, One: "yaklaşık bir saat", Many: "%d saat"},
+		{D: Day, One: "bir gün", Many: "%d gün"},
+		{D: Month, One: "bir ay", Many: "%d ay"},
+		{D: Year, One: "bir yıl", Many: "%d yıl"},
 	},
 
 	Zero: "yaklaşık bir saniye",
@@ -184,12 +184,12 @@ var Korean = Config{
 	FutureSuffix: " 후",
 
 	Periods: []FormatPeriod{
-		FormatPeriod{time.Second, "약 1초", "%d초"},
-		FormatPeriod{time.Minute, "약 1분", "%d분"},
-		FormatPeriod{time.Hour, "약 한시간", "%d시간"},
-		FormatPeriod{Day, "하루", "%d일"},
-		FormatPeriod{Month, "1개월", "%d개월"},
-		FormatPeriod{Year, "1년", "%d년"},
+		{D: time.Second, One: "약 1초", Many: "%d초"},
+		{D: time.Minute, One: "약 1분", Many: "%d분"},
+		{D: time.Hour, One: "약 한시간", Many: "%d시간"},
+		{D: Day, One: "하루", Many: "%d일"},
+		{D: Month, One: "1개월", Many: "%d개월"},
+		{D: Year, One: "1년", Many: "%d년"},
 	},
 
 	Zero: "방금",
@@ -197,7 +197,6 @@ var Korean = Config{
 	Max:           10 * 365 * 24 * time.Hour,
 	DefaultLayout: "2006-01-02",
 }
-
 
 //Format returns a textual representation of the time value formatted according to the layout
 //defined in the Config. The time is compared to time.Now() and is then formatted as a fuzzy
@@ -232,9 +231,9 @@ func (cfg Config) FormatRelativeDuration(d time.Duration) string {
 
 	if isPast {
 		return strings.Join([]string{cfg.PastPrefix, s, cfg.PastSuffix}, "")
-	} else {
-		return strings.Join([]string{cfg.FuturePrefix, s, cfg.FutureSuffix}, "")
 	}
+	return strings.Join([]string{cfg.FuturePrefix, s, cfg.FutureSuffix}, "")
+
 }
 
 //Round the duration d in terms of step.
