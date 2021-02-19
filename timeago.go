@@ -54,7 +54,7 @@ var English = Config{
 	FutureSuffix: "",
 
 	Periods: []FormatPeriod{
-		{D: time.Second, One: "about a second", Many: "a second%d seconds"},
+		{D: time.Second, One: "about a second", Many: "%d seconds"},
 		{D: time.Minute, One: "about a minute", Many: "%d minutes"},
 		{D: time.Hour, One: "about an hour", Many: "%d hours"},
 		{D: Day, One: "one day", Many: "%d days"},
