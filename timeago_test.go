@@ -20,7 +20,8 @@ var formatReferenceTests = []struct {
 	expected string    // expected result
 }{
 	// Lang
-	{tBase, tBase, NoMax(English), "about a second ago"},
+	{tBase, tBase, NoMax(EnglishUS), "about a second ago"},
+	{tBase, tBase, NoMax(EnglishUK), "about a second ago"},
 	{tBase, tBase, NoMax(French), "il y a environ une seconde"},
 	{tBase, tBase, NoMax(Chinese), "1 秒前"},
 	{tBase, tBase, NoMax(Portuguese), "há menos de um segundo"},
@@ -28,22 +29,39 @@ var formatReferenceTests = []struct {
 	{tBase, tBase, NoMax(Turkish), "yaklaşık bir saniye önce"},
 
 	// Thresholds
-	{tBase, tBase.Add(1*time.Second + 500000000).Add(-1), NoMax(English), "about a second ago"},
-	{tBase, tBase.Add(1*time.Second + 500000000), NoMax(English), "2 seconds ago"},
-	{tBase, tBase.Add(1 * time.Minute), NoMax(English), "about a minute ago"},
-	{tBase, tBase.Add(1*time.Minute + 30*time.Second).Add(-1), NoMax(English), "about a minute ago"},
-	{tBase, tBase.Add(1*time.Minute + 30*time.Second), NoMax(English), "2 minutes ago"},
-	{tBase, tBase.Add(59*time.Minute + 30*time.Second), NoMax(English), "about an hour ago"},
-	{tBase, tBase.Add(90 * time.Minute), NoMax(English), "2 hours ago"},
-	{tBase, tBase.Add(23*time.Hour + 30*time.Minute).Add(-1), NoMax(English), "23 hours ago"},
-	{tBase, tBase.Add(23*time.Hour + 30*time.Minute), NoMax(English), "one day ago"},
-	{tBase, tBase.Add(36 * time.Hour), NoMax(English), "2 days ago"},
-	{tBase, tBase.Add(30 * 24 * time.Hour), NoMax(English), "one month ago"},
-	{tBase, tBase.Add(Year).Add(-30 * Day), NoMax(English), "11 months ago"},
-	{tBase, tBase.Add(Year), NoMax(English), "one year ago"},
-	{tBase, tBase.Add(547 * Day), NoMax(English), "one year ago"},
-	{tBase, tBase.Add(548 * Day), NoMax(English), "2 years ago"},
-	{tBase, tBase.Add(10 * Year), NoMax(English), "10 years ago"},
+	{tBase, tBase.Add(1*time.Second + 500000000).Add(-1), NoMax(EnglishUS), "about a second ago"},
+	{tBase, tBase.Add(1*time.Second + 500000000), NoMax(EnglishUS), "2 seconds ago"},
+	{tBase, tBase.Add(1 * time.Minute), NoMax(EnglishUS), "about a minute ago"},
+	{tBase, tBase.Add(1*time.Minute + 30*time.Second).Add(-1), NoMax(EnglishUS), "about a minute ago"},
+	{tBase, tBase.Add(1*time.Minute + 30*time.Second), NoMax(EnglishUS), "2 minutes ago"},
+	{tBase, tBase.Add(59*time.Minute + 30*time.Second), NoMax(EnglishUS), "about an hour ago"},
+	{tBase, tBase.Add(90 * time.Minute), NoMax(EnglishUS), "2 hours ago"},
+	{tBase, tBase.Add(23*time.Hour + 30*time.Minute).Add(-1), NoMax(EnglishUS), "23 hours ago"},
+	{tBase, tBase.Add(23*time.Hour + 30*time.Minute), NoMax(EnglishUS), "one day ago"},
+	{tBase, tBase.Add(36 * time.Hour), NoMax(EnglishUS), "2 days ago"},
+	{tBase, tBase.Add(30 * 24 * time.Hour), NoMax(EnglishUS), "one month ago"},
+	{tBase, tBase.Add(Year).Add(-30 * Day), NoMax(EnglishUS), "11 months ago"},
+	{tBase, tBase.Add(Year), NoMax(EnglishUS), "one year ago"},
+	{tBase, tBase.Add(547 * Day), NoMax(EnglishUS), "one year ago"},
+	{tBase, tBase.Add(548 * Day), NoMax(EnglishUS), "2 years ago"},
+	{tBase, tBase.Add(10 * Year), NoMax(EnglishUS), "10 years ago"},
+
+	{tBase, tBase.Add(1*time.Second + 500000000).Add(-1), NoMax(EnglishUK), "about a second ago"},
+	{tBase, tBase.Add(1*time.Second + 500000000), NoMax(EnglishUK), "2 seconds ago"},
+	{tBase, tBase.Add(1 * time.Minute), NoMax(EnglishUK), "about a minute ago"},
+	{tBase, tBase.Add(1*time.Minute + 30*time.Second).Add(-1), NoMax(EnglishUK), "about a minute ago"},
+	{tBase, tBase.Add(1*time.Minute + 30*time.Second), NoMax(EnglishUK), "2 minutes ago"},
+	{tBase, tBase.Add(59*time.Minute + 30*time.Second), NoMax(EnglishUK), "about an hour ago"},
+	{tBase, tBase.Add(90 * time.Minute), NoMax(EnglishUK), "2 hours ago"},
+	{tBase, tBase.Add(23*time.Hour + 30*time.Minute).Add(-1), NoMax(EnglishUK), "23 hours ago"},
+	{tBase, tBase.Add(23*time.Hour + 30*time.Minute), NoMax(EnglishUK), "one day ago"},
+	{tBase, tBase.Add(36 * time.Hour), NoMax(EnglishUK), "2 days ago"},
+	{tBase, tBase.Add(30 * 24 * time.Hour), NoMax(EnglishUK), "one month ago"},
+	{tBase, tBase.Add(Year).Add(-30 * Day), NoMax(EnglishUK), "11 months ago"},
+	{tBase, tBase.Add(Year), NoMax(EnglishUK), "one year ago"},
+	{tBase, tBase.Add(547 * Day), NoMax(EnglishUK), "one year ago"},
+	{tBase, tBase.Add(548 * Day), NoMax(EnglishUK), "2 years ago"},
+	{tBase, tBase.Add(10 * Year), NoMax(EnglishUK), "10 years ago"},
 
 	{tBase, tBase.Add(90 * time.Minute).Add(-1), NoMax(Portuguese), "há uma hora"},
 	{tBase, tBase.Add(45 * 24 * time.Hour).Add(-1), NoMax(Portuguese), "há um mês"},
@@ -90,9 +108,13 @@ var formatReferenceTests = []struct {
 	{tBase, tBase.Add(10 * Year), NoMax(Turkish), "10 yıl önce"},
 
 	// Max
-	{tBase, tBase.Add(90 * time.Minute).Add(-1), NoMax(English), "about an hour ago"},
-	{tBase, tBase.Add(90 * time.Minute).Add(-1), WithMax(English, 90*time.Minute, ""), "about an hour ago"},
-	{tBase, tBase.Add(90 * time.Minute), WithMax(English, 90*time.Minute, "2006-01-02"), "2013-08-30"},
+	{tBase, tBase.Add(90 * time.Minute).Add(-1), NoMax(EnglishUS), "about an hour ago"},
+	{tBase, tBase.Add(90 * time.Minute).Add(-1), WithMax(EnglishUS, 90*time.Minute, ""), "about an hour ago"},
+	{tBase, tBase.Add(90 * time.Minute), WithMax(EnglishUS, 90*time.Minute, "2006-01-02"), "2013-08-30"},
+
+	{tBase, tBase.Add(90 * time.Minute).Add(-1), NoMax(EnglishUK), "about an hour ago"},
+	{tBase, tBase.Add(90 * time.Minute).Add(-1), WithMax(EnglishUK, 90*time.Minute, ""), "about an hour ago"},
+	{tBase, tBase.Add(90 * time.Minute), WithMax(EnglishUK, 90*time.Minute, "02-01-2006"), "30-08-2013"},
 
 	{tBase, tBase.Add(90 * time.Minute), WithMax(Portuguese, 90*time.Minute, "01-02-2006"), "08-30-2013"},
 
@@ -106,7 +128,8 @@ var formatReferenceTests = []struct {
 	{tBase, tBase.Add(90 * time.Minute), WithMax(Turkish, 90*time.Minute, "02/01/2006"), "30/08/2013"},
 
 	// Future
-	{tBase.Add(24 * time.Hour), tBase, NoMax(English), "in one day"},
+	{tBase.Add(24 * time.Hour), tBase, NoMax(EnglishUS), "in one day"},
+	{tBase.Add(24 * time.Hour), tBase, NoMax(EnglishUK), "in one day"},
 	{tBase.Add(24 * time.Hour), tBase, NoMax(Turkish), "bir gün içinde"},
 
 	{tBase.Add(2 * Month), tBase, NoMax(Turkish), "2 ay içinde"},

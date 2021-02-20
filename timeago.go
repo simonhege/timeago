@@ -16,9 +16,12 @@ import (
 )
 
 const (
-	Day   time.Duration = time.Hour * 24
+	// Day is a time duration consisting of 24 hours
+	Day time.Duration = time.Hour * 24
+	// Month is a time duration consisting of 30 days
 	Month time.Duration = Day * 30
-	Year  time.Duration = Day * 365
+	// Year is a time duration consisting of 365 days
+	Year time.Duration = Day * 365
 )
 
 type FormatPeriod struct {
@@ -46,8 +49,8 @@ type Config struct {
 	DefaultLayout string
 }
 
-//Predefined english configuration
-var English = Config{
+// EnglishUS is the predefined configuration for US English. It uses the date format of year/month/day
+var EnglishUS = Config{
 	PastPrefix:   "",
 	PastSuffix:   " ago",
 	FuturePrefix: "in ",
@@ -68,6 +71,29 @@ var English = Config{
 	DefaultLayout: "2006-01-02",
 }
 
+// EnglishUK holds the predefined configuration for UK English. It uses the UK date format of day/month/year
+var EnglishUK = Config{
+	PastPrefix:   "",
+	PastSuffix:   " ago",
+	FuturePrefix: "in ",
+	FutureSuffix: "",
+
+	Periods: []FormatPeriod{
+		{D: time.Second, One: "about a second", Many: "%d seconds"},
+		{D: time.Minute, One: "about a minute", Many: "%d minutes"},
+		{D: time.Hour, One: "about an hour", Many: "%d hours"},
+		{D: Day, One: "one day", Many: "%d days"},
+		{D: Month, One: "one month", Many: "%d months"},
+		{D: Year, One: "one year", Many: "%d years"},
+	},
+
+	Zero: "about a second",
+
+	Max:           73 * time.Hour,
+	DefaultLayout: "02-01-2006",
+}
+
+// Portuguese holds the predefined configuration for the Portuguese language.
 var Portuguese = Config{
 	PastPrefix:   "há ",
 	PastSuffix:   "",
@@ -89,6 +115,7 @@ var Portuguese = Config{
 	DefaultLayout: "02-01-2006",
 }
 
+// Chinese holds the predefined configuration for the Chinese language.
 var Chinese = Config{
 	PastPrefix:   "",
 	PastSuffix:   "前",
@@ -110,7 +137,7 @@ var Chinese = Config{
 	DefaultLayout: "2006-01-02",
 }
 
-//Predefined french configuration
+// French holds the predefined configuration for the French language.
 var French = Config{
 	PastPrefix:   "il y a ",
 	PastSuffix:   "",
@@ -132,7 +159,7 @@ var French = Config{
 	DefaultLayout: "02/01/2006",
 }
 
-//Predefined german configuration
+// German holds the predefined configuration for the German language.
 var German = Config{
 	PastPrefix:   "vor ",
 	PastSuffix:   "",
@@ -154,7 +181,7 @@ var German = Config{
 	DefaultLayout: "02.01.2006",
 }
 
-//Predefined turkish configuration
+// Turkish holds the predefined configuration for the Turkish language.
 var Turkish = Config{
 	PastPrefix:   "",
 	PastSuffix:   " önce",
