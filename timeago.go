@@ -68,6 +68,27 @@ var English = Config{
 	DefaultLayout: "2006-01-02",
 }
 
+var Kurdish = Config{
+	PastPrefix:   "",
+	PastSuffix:   " berî niha",
+	FuturePrefix: "di ",
+	FutureSuffix: "ê de",
+
+	Periods: []FormatPeriod{
+		FormatPeriod{time.Second, "nêzî çirkeyek", "%d çirkeyan"},
+		FormatPeriod{time.Minute, "nêzî xulekek", "%d xulekan"},
+		FormatPeriod{time.Hour, "nêzî demjimêrek", "%d demjimêran"},
+		FormatPeriod{Day, "yek roj", "%d rojan"},
+		FormatPeriod{Month, "yek meh", "%d mehan"},
+		FormatPeriod{Year, "yek sal", "%d salan"},
+	},
+
+	Zero: "nêzî çirkeyek",
+
+	Max:           73 * time.Hour,
+	DefaultLayout: "2006-01-02",
+}
+
 var Portuguese = Config{
 	PastPrefix:   "há ",
 	PastSuffix:   "",
