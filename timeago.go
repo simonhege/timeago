@@ -72,7 +72,7 @@ var Kurdish = Config{
 	PastPrefix:   "",
 	PastSuffix:   " berî niha",
 	FuturePrefix: "di ",
-	FutureSuffix: " de",
+	FutureSuffix: "ê de",
 
 	Periods: []FormatPeriod{
 		FormatPeriod{time.Second, "nêzî çirkeyek", "%d çirkeyan"},
