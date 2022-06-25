@@ -54,6 +54,15 @@ var formatReferenceTests = []struct {
 	{tBase, tBase.Add(45 * 24 * time.Hour), NoMax(Portuguese), "há 2 meses"},
 	{tBase, tBase.Add(10 * Year), NoMax(Portuguese), "há 10 anos"},
 
+	{tBase, tBase.Add(90 * time.Minute).Add(-1), NoMax(Spanish), "hace una hora"},
+	{tBase, tBase.Add(45 * 24 * time.Hour).Add(-1), NoMax(Spanish), "hace un mes"},
+	{tBase, tBase.Add(36 * time.Hour).Add(-1), NoMax(Spanish), "hace un día"},
+	{tBase, tBase.Add(1 * time.Minute).Add(-500000001), NoMax(Spanish), "hace 59 segundos"},
+	{tBase, tBase.Add(59*time.Minute + 30*time.Second).Add(-1), NoMax(Spanish), "hace 59 minutos"},
+	{tBase, tBase.Add(30 * 24 * time.Hour).Add(-12*time.Hour - 1), NoMax(Spanish), "hace 29 días"},
+	{tBase, tBase.Add(45 * 24 * time.Hour), NoMax(Spanish), "hace 2 meses"},
+	{tBase, tBase.Add(10 * Year), NoMax(Spanish), "hace 10 años"},
+
 	{tBase, tBase.Add(1*time.Second + 500000000).Add(-1), NoMax(German), "vor einer Sekunde"},
 	{tBase, tBase.Add(1*time.Second + 500000000), NoMax(German), "vor 2 Sekunden"},
 	{tBase, tBase.Add(1 * time.Minute), NoMax(German), "vor einer Minute"},
