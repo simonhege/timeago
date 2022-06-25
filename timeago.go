@@ -103,6 +103,10 @@ var Spanish = Config{
 		{Month, "un mes", "%d meses"},
 		{Year, "un año", "%d años"},
 	},
+
+	Zero:          "menos de un segundo",
+	Max:           73 * time.Hour,
+	DefaultLayout: "02-01-2006",
 }
 
 var Chinese = Config{
